@@ -1,0 +1,245 @@
+[ 배준석 차장 - 최적화팀 ]
+
+*** 중요! 프리티어 사용자는 ****
+빌링 Dashboard에 가서, US의 Region 중 North Virginia에 가서
+알람을 주도록 설정할 수 있음.
+*********************************
+ 
+ 
+ # Technical Essential LG CNS
+ - 안준필 강사 (Leo An / junpil@amazon.com) - 교재는 2년까지 임
+** 시험 정보 : bit.ly/sacertguide
+** Putty에서 인증서 포워딩 기술이 있는데, 
+이를 pageant라고 하고 프로그램을 다운받아야한다.
+https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
+
+[Day 1]
+* 1st class
+---------------- To start ------------------------ 
+
+ http://aws-class.com/14811
+1. Course Sign-up
+    * 등록 계정 : dolbymana@gmail.com
+	  : 이쪽으로 정보들이 많이 온다.
+	  
+2. qwikLABS 에 연결하기
+ 강사로 부터 실습 환경을 사용할 수 있다는 안내를 받았다면, qwikLABS에 접속 하십시오:
+
+qwikLABS Single Sign On을 처음 사용하면 qwikLABS 계정을 연결 해야 합니다.
+계정이 없는 경우 생성 프로세스를 시작할 수 있습니다. AWS Training과 qwikLABS 계정 사이의 링크를 확인 해야 합니다.
+
+3. 강의자료를 위한 바우처 코드를 등록된 이메일로 받아야함
+   : NYYQV84X72SSTMRVRXKT
+
+4. 실습자료 2개 다운로드됨
+
+--------------------------------------------------
+
+-----> 영문본 강의 자료는 없는지? 
+
+* 1st lecture
+
+1) 질문
+Amazon Route 53 : DNS
+Amazon CloudFront : CDN
+---> 오리진까지의 속도 가속 방안???? 기다렸다가.
+
+2) 특징
+<계정관련>
+- Root 는 최초 전체 관리 계정(크래딧카드 등록된)으로 그 아래로 서브 계정 생성 가능
+- AWS는 중국에도 있는데, 단, Region간에 데이터 복사등은 할 수 없음. 폐쇄적이고 들어갈 수가 없음.
+- 미국 공공기관 Root는 공무원증 있어야만 들어갈 수 있음.
+  
+
+* 2nd lecture
+
+<<<<< EC 2 >>>>>
+- 사용 기준은 기본적으로 1시간임 (10분을 쓰고 지워도 1시간으로 체크)
+- 특히, 보안그룹은 반드시 설정해야 하고, 없으면 생성 안됨
+- 구성 설명
+  * EC2
+    - instance
+	  - VM
+	    예시) Cpu : 1 cpu
+		      Ram : 1 G
+			  HDD : 20G Root
+			        20G Data
+			  NIC : 1G
+			  
+    - 여러개의 Host 중에서 CPU여유 있는 Host와
+	  EBS (NAS / 20,000 IOPS)나 Internal Disk(Instance Store / 365,000 IOPS)와 Host의 CPU와 연결한다.
+	  그리고, 다른 Host에서 NIC를 연결한다.
+	  이렇게 여러개의 Host 중에서 필요한 것들을 연결하는 구조라고
+	  보면 된다.
+- EBS : EBS 볼륨에 저장된 데이터는 인스턴스 수명고 무관하게 유지가 가능함.
+  스토리지가 영구적임
+        ( EBS로 연결된 EC2만 중지중이 가능하고, Instance Store로 생성한 EC2 Instance는 중지중이라는 개념이 없다. )
+- 주의!! Instance store : 로컬 인스턴스 스토어에 저장된 데이터는 인스턴스가 활성화(러닝중-재부팅은 포함 / Stop을 하면 비활성화로 봄) 되어 있는 동안만 유지되기 때문에 RAM 처럼 휘발성이다. 주로 어디에 쓰지???
+( SWAP 파일, Hadoop 등 Big data 개념에서 서로 복제본이 있는 경우에 주로 사용 )
+
+---> AZ를 추가로 사용하면, AMI (Amazon Machine Image)를 utilizing하여 구성 가능한데, 비용은 2배인가? 맞을 수도 있고, 아닐수도 있고.
+
+- AWS Marketplace ( AWS 인프라 위에 배포한 IT 소프트웨어를 검색/구매 할 수 있음)
+  * 호환성 검사는 다 되어 있음.
+  * 자동 배포, 매뉴얼 배포 다 되어 있음.
+  * AWS 비용에 포괄적으로 청구가 되므로, 개별 관리할 필요가 없음.
+
+  * 참고 : www.ec2instances.info 에는 ec2 instance에 대한 정보가 있음
+    - 패러다임을 바꾸자! 일단, 한시간 써보고 부족하면 바꾸면 된다.
+	
+  * EC2 Type
+    T : Busrting 기술을 가지고 있음
+	M : 범용적으로 사용
+	C : CPU가 많아서 Computing 필요
+	R : 메모리 많음. DB에 주로 사용
+	G : GPU 가 좋은 쪽
+	I : IOPS가 좋은 쪽. DB나 컨텐트 관리에 주로 사용
+	D : 스토리지 용도
+  * Metadata
+    - 인스턴스에 대한 정보가 들어 있음.
+	- 인스턴스 사용자 데이터 ( 웹 서버/와스 서버등 기동 정보들도 포함됨. 65 페이지 시험에 나오기도 함 )
+    - 서버 IP 에 latest/meta-data/라고 치면 볼수 있음.
+  
+  [ 구입 옵션 ]
+  * 종료를 누른 시점까지를 사용시간으로 하여 과금함
+    ( 서버가 늦게 종료되어도 무관함 )
+  * 예약 인스턴스는 좀 더 20-30% 저렴
+  * 전용 호스트 사용 : 보안 유지 또는 소프트웨어 라이센스 문제로 사용되는 Case임
+                       Host 변경은 불가능 하지만, Spec은 바꿀 수 있다.
+					   
+<<<<< S3 ( Simple Storage Service ) >>>>>					   
+- 인터넷에 오픈됨 / 객체 타입 스토리지 ( 파일단위임 )
+- 객체 크기는 최대 5TB만 넘지 않으면, 무제한으로 사용가능하다.
+- 깨지면 안되는 데이터 저장이 용이하다. 거의 99.999999999% 에러율임
+- Streaming 서비스나 미디어 서비스에 사용 가능.
+- Bucket 기준 청구, 계정당 최대 100개 버킷 보유가 가능함.
+  ( 단, Bucket은 전세계적으로 고유한 이름을 가짐 )
+  * 스토리지 요금
+  * 요청 요금
+  * 데이터 전송 요금 ( S3에서 송신한 데이터 )
+- S3는 기본적으로 인터넷에서 접속 가능하므로,
+  * 엑세스 제어 목록
+  * 버킷 정책
+  * IAM 정책 으로 보호할 수 있고, SSL암호화도 당연히 가능하다.
+- S3는 옵션을 선택해서 버전관리를 할 수 있다.
+[ 비용 Type ]
+- 3가지 Type이 있고, 각각 저장에 비용을 높일지, 아니면 Access에 비용을 높일지를 선택하여 정할 수 있다.
+- 객체 수명 주기를 활용하면, 더 싼 S3 Type으로 변경가능하다.
+
+<<< EBS ( Elastic Block Store ) >>>>
+- 최대 16 TB까지 생성 가능
+- 블락단위 스토리지임.
+
+<<< EC2 의 인스턴스 스토리지 >>>
+- 인스턴스 스토리지는 무료임.
+- 인스턴스 사용 비용에 물려 있음.
+- 비교 자료는 하기에 있음. http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html
+- 재부팅은 과금이 초기화 되지 않으나, 중지/시작은 무조건 1시간 단위 비용 과금됨 ( 상태 중지 중으로 변경시 즉시 비용 발생 )
+
+<<<<< 네트워킹 ( VPC ) >>>>> ---- 실습 예정
+- 논리적으로 격리된 프라이빗 가상 네트워크를 프로비저닝합니다.
+- 개념 이해 필요
+  . 서브넷 / 보안 / 네트워킹 / VPN
+1) 서브넷
+  . VPC내 IP 주소 범위 정의
+  < 단순 Naming Tag임 >
+  . 프라이빗 서브넷 : 인터넷 액세스 할 수 없음
+  . 퍼블릿 서브넷 : 인터넷 액세스 할 수 있는 리소스 대상
+  주의! 각 서브넷은 하나의 가용 영역내에 모두 상주해야함.
+        다른 영역으로 변경 불가함.
+
+  - VPC 는 가용영역(서브넷을) 여러개를 묶어서 만들 수 있음
+
+2) VPC 보안
+  . Instance 별로, 서브넷 별로, 보안 그룹을 지정할 수 있다.
+  . 보안그룹은 필수
+  . NACL (네트워크 엑세스...)은 옵션임
+  
+***** 실습 ******
+참고 : 0.0.0.0/0 의 의미는 인터넷 구간이라고 함.
+- VPC Wizard를 사용하여 VPC를 최초 구성하면, NAT(Network Access Translation)와 IGW (Internet Gateway)를 자동 생성해준다.
+- VPC와 Subnet을 구성해도 Route Table은 자동으로 생성된다.
+  10.0.0.0/16으로 말이다. 결국 내부적으로는 다 통신된다는 뜻
+- VPC간 통신에서는 VPC Peering 서비스를 이용해서 통신하면 된다. 일종의 VPCP (VPC peering)
+
+* 3rd Lecture
+<<<< 보안 >>>>
+- SSL 엔드포인트
+  * SSL 사용을 위해서 Root 인증서를 발급해주고 있음.
+- 133 Page 보안을 위해서 모든 인터넷 포트는 기본적으로 차단하고,
+  HTTP 와 같은 인터넷 포트망 개방하고, 
+  관리자를 위해서는 베스천을 통해서만 접속하도록 하고 있음 (모든 로그가 다 남음)
+  각 티어별로 Security Group을 설정해서 보안 설정이 가능함.
+  
+- 인증 : 멥버쉽
+  권한 : 멥버 등급 별로 접근할 수 있는 조정된 권리
+
+- Root는 ID/PW로만, User(IAM)는 Account 키와 유저명/패스워드로 구성
+- Key는 Access Key ID, 비밀키 로 두개로 구분됨.(137 Page)
+- EC2 메타데이터에 보면 Rolename확인이 가능하고,
+  자격증명을 발급하여, 이 자격증명을 부여받은 경우에는 바로 사용이 가능하다. 자격증명에 담겨 있는 Key 값들은 노출이 안되므로 매우 좋음.
+  확장하는 경우에는 자격증명을 전혀 다른 사용자에게 주어서,
+  일시적으로 사용하도록 할 수 있음.
+- 주의! IAM은 다른 서비스를 사용하도록 하는 용도일 뿐, 
+  OS 및 애플리케이션 인증용으로 부적합하다.
+  주의! Root는 노출되면 다 변경해야한다.
+  따라서, 개별 IAM 사용자를 사용해서 쓰자.
+  주의! 만일 Amazon S3 버킷 정책과 IAM 권한이 동시에 있다면,
+        둘 중에 가장 적은 권한을 가진 쪽으로 정리되어 적용된다.
+		
+* 4th Lecture
+<<< Database >>>
+- SQL / NoSQL 기반을 모두 지원한다.
+1) Amazon RDS
+   - 크기 조정 가능한 RDB 지원 / 데이터베이스 관리작업은 AWS에서 진행
+   - DB는 인스턴스 기준으로 관리됨.
+     * 인스턴스는 보안그룹 기준으로 관리됨. VPC 사용도 가능
+	 * 따라서, 다른 인스턴스에서는 볼수가 없음.
+   - 교차 리전 스냅샷
+     * 다른 AWS 리전에 저장된 데이터베이스 스냅샷을 재해 복구를 위해 백업으로 제공
+   - Amazon RDS는 무조건 VPC를 생성하고, DB 인스턴스 설정 가능
+     * Amazon RDS 암호화를 사용하거나, TDE ( Transparent Data Encryption )을 사용 DB에서만 지원하고 있음.
+   - 참고로, Oracle 대비해서 Opensource 진영에서는 PostreSQL이 가장 유사함.
+   - 다중 AZ RDS 배포(동기식으로)를 지원함 (DB 이중화를 위해서)
+     -> 장애 발생시 자동으로 수행가능 ( Master - Standby 구조 )
+
+2) Amazon Dynamo DB
+   - No SQL DB / Scale out이 가능한 DB임
+   - 어떤 양의 데이터든 제한없이 저장 가능
+   - 요청용량을 WCU, RCU 기준만 선정하면 완전하게 Infra를 AWS에서
+     알아서 관리해 줌
+   - No SQL은
+     테이블 만들고, 파티션 키(는 유일해야함)만 잘 설정하면, 그냥 데이터를 종류와 상관없이 입력하면 됨. ( 192 Page )
+   - 정렬키를 추가로 만들면 파티션키와 정렬키를 세팅해서
+     데이터를 등록할 수 있음.
+   - 추가로 LSI라는 Index를 만들면 3키로도로 등록 가능하다.
+   - GSI를 이용하면 Table의 Reorganization이 가능하다.
+**** - 주의! 프로비저닝된 처리량 (중요! 추가 공부 필요함 / 195 Page)
+     * Dynamo DB는 기본적으로 분산 처리함.
+	   Strongly Consistent Read : 여러곳에 담긴 데이터 중 최종 값을 읽는 구조
+	   Eventually Consistent Read : 절반정도의 정확도를 가진 현재의 데이터 값을 읽는 구조
+     * C A P 이론 = 분산형 DB에서 Consistency를 유지하는 방법
+
+   - Casandra를 쓰려면 EC2에 직접 설치해서 사용해도 됨.
+
+************* 참고 자료 : www.awsomeday.me 강사님이 만든 프로그램 ******
+
+   - 실습하기 (DB)
+   ** 주의 RDS를 사용하는 경우에 Subnet 그룹은 미리 생성하고 나서,  RDS Dashboard에서 할당해야 한다.
+	 
+*** 5th lecture
+<<< AWS EC2의 탄력성 및 관리 도구 - Elastic Load Balancing >>>
+- 단, 우선 시작 구성을 미리 만들어 놓아야 한다.
+- 이를 이용해서 Cloud Watch가 보고 있다가, Hypervisor에서 하드웨어적인 상태를 모니터링 하고 있다가 Auto Scaling하여 EC2 인스턴스를 생성한다.
+- 구성 방법 (Elastic Load Balancing을 사용)
+  - 예약 이벤트로 지정
+  - 알아서 Scaling하는 방법
+- Elastic Load Balancing을 통해서 앞단에서만 HTTPS사용 가능
+  (219 Page 참고)
+- CloudWatch를 통해서 경보를 설정하여 임계값 지정이 가능함
+
+*** AWS Trusted Advisor
+  에서는 비용/보안/내결함성/성능 측면에서 추천가능한 사항들을 모아서 제안 해준다.
+  
+  
+  Lab6ELB-557249260.ap-northeast-2.elb.amazonaws.com

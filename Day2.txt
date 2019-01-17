@@ -1,0 +1,112 @@
+** 시험 정보 : bit.ly/sacertguide
+** Putty에서 인증서 포워딩 기술이 있는데, 
+이를 pageant라고 하고 프로그램을 다운받아야한다.
+https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
+
+1교시
+<< AWS 기초 지식 >>
+- 클라우드 컴퓨팅 : 인프라는 하드웨어가 아니고, 소프트웨어로 생각하는 패러다임 변경 필요
+- IaaS, PaaS, SaaS
+- EC2, EBS는 초당 과급으로 변경됨 (조만간)
+
+1) 서비스
+[ 분석용 Tool ]
+- Elasticsearch : 로그 파일 검색 관리에 사용됨
+- QuickSight : 시각화 (뒤에 S3를 붙여서 아데나 서비스를 붙여서 시각화 함)
+- Redshift : DW이고 시각화가 붙어 있음.
+[ 개발자 도구 ]
+- AWS Deploy : 소스 배포 기능 모듈
+- Cloud Formation : 테스트용으로 Cloud 내의 변경을 모두 바꾼 후 원복하면 모두 원복됨
+[ 보안 ]
+- AWS WAF : DDoS 방지 서비스
+
+2) 리전 개념
+[ AWS 리전 ]
+- 리전간 통신은 인터넷 망으로 통신함.
+- 리전내에서 AZ간 통신은 고속 Private 링크를 사용함
+
+3) 클라우드의 보안
+- 가상화 인프라이지만 인스턴스간 하드웨어 분리되어 있음.
+
+<< Cloud Adoption Framework >>
+- 서버는 죽을수 있지만, 서비스는 잘 동작하도록 한다는 것이 전제이다.
+
+
+2교시
+- EC2 생성
+  <Step 2 >
+  ! 서버 생성시 EBS Optimized instance 옵션은 EBS(NAS)용 NIC카드를 별도로 지정할지를 선택하는 것이다(성능 측면)
+
+  < Step 3>
+  ! Instance 생성시 S/W적으로 20개까지만 만들수 있다.(Service Limit)
+    ( 실제로는 무제한이라서, Support Center에 요청하면 가능 )
+  
+  < Step 5>
+  ! Tag 매우 중요 - 서버에 이름이나 정보를 줄때 사용
+    나중에 Tag를 잘 주면 해당 그룹만 모아서 Patch를 한다거나 운영이 편하다.
+	예로> Version, Kernel 값등을 넣어 주면 활용 가능
+
+- DB
+  < 분산 DB >
+  RCU = 읽기 동시 유저 1명
+  WCU = 쓰기 동시 유저 1명
+  * Strongly Consistent Read로 물으면 최종적으로 Update한 값을 리턴해주고
+    RCU=1로 소모된다.
+  * Eventually Consistent Read로 물으면 분산되어 update된 최종값을 주지는 않는 대신에 RCU=1/2로만 소모한다.
+
+3교시
+- IAM 권한은 암시적으로는 거부되어 있다. explicit하게 정의해야만 허용.
+- 보안 강화 Step
+  P.124부터
+  * Cloudtrail 과 Cloudconfig를 같이 사용하면 보안 추적, 원복이 가능하다.
+
+* 실습 한글판 : bit.ly/arc-lab-1
+  ( EC2, S3, RDB, DynamoDB 등등 주로 사용하는 것이 많이 나옴 )
+
+
+webapp-cb35lab120170920
+
+13.124.220.180
+
+4교시
+[환경 설계]
+[ 서비스 ]
+( 165 Page )
+** Amazon S3는 별도 설정이 없으면 인터넷 구간으로 접속하기 때문에
+격리가 필요할 경우에는 VPC엔드포인트를 별도로 생성하여 연결하면 격리가 가능하다.
+[ 서브넷 ]
+! 서브넷은 한번 만들면 변경이 불가능하다.
+
+[ VPC ]
+Page 196. VPC 피어링(PCX)을 사용하면 동일 Region내에서는 연결이 가능하도록 되어 있다.
+[ VPN 연결 ]
+온프레미스 네트워크를 AW로 확장 (VGW)를 사용 - 다만, 느리고 인터넷 공간이라 Compliance 이슈가 있다.
+--> [ AWS Direct Connect ] : 전용선 서비스 -> 망사업자를 통해서 연결 가능
+
+[ 기본 서브넷 ]
+
+4교시 : 고가용성(HA : High Availability) 환경 만들기 (Part1)
+* 고가용성 및 AWS 리전
+-> 다중 리전 배포는 가용성, 비용, 복잡성이 증가하기 떄문에 비추천한다.
+   꼭 필요한 경우에 한해서만 다중 리전 Replication 서비스를 사용하자!!
+* ELB를 통한 HA 구성
+  **** ELB중 Application Load Balancer를 쓰면 공인 IP가 지속적으로 바뀌는 이슈가 있다. (일반적인 AWS는 다 그렇다.)
+       --> ELB 중 Network Load Balancer를 쓰면 공인 IP가 안바뀌도록 할 수 있다.
+
+< Route 53 >
+* Page 243 : 리전 전체의 HA도 가능하다. with Route 53(TCP/UDP 포트 53 - DNS 포트)을 통해서
+  -> 그래서 Route 53은 Edge에 붙어 있다.
+* 지리 위치 라우팅도 가능하다.
+
+
+* 실습 한글판 : bit.ly/arc-lab-2
+
+
+52.79.92.249
+
+ap-northeast-2a
+
+
+nat-08b066ef0b4e61887
+
+LB1-1306716706.ap-northeast-2.elb.amazonaws.com

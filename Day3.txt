@@ -1,0 +1,136 @@
+3일차
+
+<< Amazon CloudWatch >>
+- CloudWatch가 있어야 AutoScaling이 된다.
+- 추가적인 모니터링 Tool을 사용해서 관리하는 것을 권장한다.(289 Page)
+- Auto Scaling 설정 및 작동 프로세스 (297 Page)
+- 수명 주기 후크
+  * Auto Scaling 으로 Stop되는 Instance에 저장된 내용들을 별도 보관할 수도 있다.
+
+<< EC2 자동 복구 >> - 비용 발생 X (Page 318)
+* EC2의 Host에 심각한 문제가 발생할 경우, AWS에서 기본적으로 복구 서비스를 해준다. 단, 하기와 같은 선행 조건이 유지되어야 한다.
+  - 교체 인스턴스는 ID/메타데이터, IP주소를 유지해서 복구한다.
+  - 단, 임시성 데이터는 X
+  - 가능 인스턴스 : C3, C4, M3, M4, R3 및 T2
+  - 인스턴스는 VPC에 있고, 공유 테넌시 사용이어야 함.
+  - GovCloud 및 중국리전은 안됨
+  - 인스턴스 스토리지는 사용할 수 없고, EBS 지원 스토리지만 사용해야함
+  - 작업에서 동일한 인스턴스 메타 데이터 또는 스토리지 볼륨을 유지해야하는 경우에는 Auto Scaling 을 해야함.
+  
+<< RDS AutoScaling >> - 320 Page
+- 인스턴스의 스케일 업/다운만 가능함.
+- 데이터베이스 샤당을 사용 할 수 있음. 단, 조인은 안됨
+- 읽기 전용 복제본 추가 : 읽기 중심으로만 하고, 복제는 비동기 식이다 (Snapshot)
+  : Snapshot 생성시 1분정도 IO가 중단되므로, AZ로 이중화 구성을 해야하고,  이 경우에는 Stand by DB에서 가져가므로 문제가 발생하지 않는다.
+
+*********** << AWS Lambda >> - 329 Page
+- 기본적으로 유휴리소스에 대해 비용을 지불할 필요가 없다!는 것이 기본임
+- 단, 단점은 실행시간이 5분이 넘으면 안됨
+  ( 5분이 넘으면 EC2를 사용하는 것이 많음 )
+- 필요할때만 사용~
+!!!! 실습 : * 실습 한글판 : bit.ly/arc-lab-3
+
+<<<< 6교시 : 인프라 자동화 >>>>
+** 인프라를 소프트웨어 처럼 구축/운영하는 구조
+---> CloudFormation !!서비스이다.
+!!! 참고 URL : cloudcraft.co
+               visualops.io
+			   terraform.io
+
+			   
+<< CloudFormation >>
+*** 총 정리 : 380 Page
+
+- 소유권과 애플리케이션 수명 주기를 기준으로 리소스를 분리하여 관리 필요
+  ( 개발용, Production용 등으로 )
+  ( 353 Page )
+- 템플릿을 구성하고, 한국에서 사업이 잘되서 미국으로 확장한다고 해서 그대로 미국에서 사용하면 당연히 안될 수 있다. ( Page 362 )
+  --> Parameter를 지정해 놓으면 이러한 것을 해결할 수 있다.
+      마치, Properties 처럼~
+- Mappings : 조건부 파라미터 값 지정.
+중요! Stacks 생성시 CloudFormer를 선택해서 만들면 지금 만들어진 것 기준으로 Stacks를 생성해 준다.
+
+---> CloudFormation의 확장판
+1) AWS Elastice Beanstalk (간단하게 만들기)
+   : 웹 애플리케이션용 자동 배포 및 조정 서비스 ( 웹용 서비스 만들기용 )
+   -> (375 Page) 블루 그린 배포 가능 (VPC 단위로도 가능)
+      블루 : 실제 운영
+	  그린 : To-Be 운영 ( Route 53으로 가중치 조정 테스트 )
+
+2) AWS OpsWorks (상세하게 설정해서 환경 구성하기)
+   : 환경 구성관리 서비스
+
+3) Amazon EC2 실행명령
+   : 스크립트 베이스로 생성관리
+
+<<<< 7교시 : 인프라 결합 해제 >>>>  (381 page)
+** 최종 예시 : 433 Page (이미지 변경**)!!!!!!!!!!!! -> 우리에게 중요!
+               ( 이걸 image trascoding이라고 한다. )
+
+- 인프라를 소프트웨어처럼 구성하고 느슨하게 결합하자.
+- Microservice가 왜 화두가 될까? 아마존, 삼성, 슈퍼셀 같은 회사가 이걸로 성공했다.
+  : 조직을 바꿔야만 가능한 이야기다.
+    아마존은 2 Pizza Team Rule이 있다 한팀에 8-10명으로 구성하고,
+	Microservice형태로 모든것을 개발관리한다.
+- Microservice 형태에서 구성요소간 쉽고 안정적인 통신을 위한 서비스를 제공한다.
+
+<< Amazon Simple Queue Service (SQS) >>
+    - 14일까지 Queue를 보관하고 있고, 그 사이에 가져가면 된다.
+	- 분산 Queue 이다. 따라서, 항상 일관성 보장을 할 수는 없다.
+	  -> 그러다 보니, 선입 선출은 보장하지는 않고, 중복해서 회신될 경우도 있다.
+	- 특징 : 400 Page 참조
+    - 사용 예 : 410 Page ( Amazon SQS ) : 이미지 Transformation 시스템
+	            414 Page ( Amazon SQS 및 Dynamo DB ) : 투표 시스템
+	- 요청량이 많으면 Amazon SQS를 통해서 먼저 Queue에 담아서 처리
+
+<< 419 Page - Amazon API Gateway >>
+- Lamda, EC2, 모든 웹 애플리케이션을 위함.
+- DDoS 보호에 적합
+  : CloudFront, API Gateway 등
+
+<< Amazon Lambda 함수 >>
+- Invocation Trigger는 426 Page에 있음.
+- 사용 방법 : 427 Page
+- 제약조건 : 428 Page
+- 프리티어(Free Tier) : 1백만건의 무료요청 및 월별 400,000 GB 초의 컴퓨팅 시간 (이런 경우는 공짜임) 
+- 예시 : 429 Page
+
+
+
+<<<< 8교시 : 웹 규모 스토리지 (440 Page) >>>>
+SSL관련 : - AWS ACM?? -> SSL 인증서 무료 발급해 줌
+
+- CloudFront를 S3에 붙여서 서비스를 하면 Streaming 서비스를 할 수 있음.
+- Page 443 : 약간 마케팅 케이스임 ( 구성을 455 Page 처럼 하세요 )
+  - (444 Page) 보안(SSL), 정적 Content, 동적 Content (TTL값이 0 = 오래 보관하지 않고 직접적으로 데이터를 즉시 가져오라는 말), 동영상
+  1) 정적 자산은 S3에 저장하세요 (EC2에 갈필요 없이 전송 = EC2를 가볍게) / Page 446 / 새 객체의 PUT에 대한 쓰기 완료 후 읽기 일관성 제공
+     . 이름 지정 체계 주의! 
+	   -> 버킷 로드 해결을 위해서 키에 해시 접두사 추가
+	 . 리전 선택을 잘하자! 가까운 곳으로!
+  2) 자주 액세스하는 자산을 Amazon CloudFront 에서 제공하게 하세요. (CDN이다)
+     . 주의! 스트리밍 배포는 반드시 S3 사용할 것.
+
+    !! Cloudfront에서 Lambda함수 호출이 가능하다.
+
+    - 콘텐츠 만료하는 방법 (461 Page) : TTL(Time to Live)
+      . Purge는 한달에 100개 까지만 객체 무효화가 무료이다. 나머지는 돈이다.
+
+  3) 비관계형 데이터는 DynamoDB를 사용해라~
+     예시) NoSQL vs RDB = 10%:90% 이다. 현재 시장에서.
+	 - 사례 : 469 Page
+	 - 모범사례 : 
+	   . 메타데이터는 DynamoDB에 대용량 BLOB는 Amazon S3에 저장
+	   . 시계열 데이터는 일별, 주별, 월별로 나누어서 각각 별로 RCU / WCU를 설정해서 사용해야 비용이 줄어든다.
+
+   4) 관계형 데이터를 Amazon RDS에 저장합니다. (이렇게 477 Page 처럼)
+     - 보안 : 479 Page
+	 - Aurora DB는 Amazone 것이고, MySQL 5.6과 즉시 호환
+	   ( 아래 단에 S3가 있고, 3개의 AZ에 복제가 6개가 생긴다. )
+	   ( DB 다시 시작시에도 캐시 계층이 보존되어 있음 )
+	   
+* 실습 한글판 : bit.ly/arc-lab-4
+  - Lambda에 Monitoring이 있음. CloudWatch Logs에 Logging이 기록됨.
+
+
+
+
